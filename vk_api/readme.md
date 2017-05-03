@@ -8,6 +8,7 @@ To start with clone our rep
 ```
 git clone https://github.com/data2you-ru/d2u
 ```
+NOTE: make shure you put your own logins and passwords in my_data.py and config.py
 
 ### Prerequisites
 
