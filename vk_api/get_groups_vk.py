@@ -2,7 +2,7 @@
 import vk
 import time
 from my_data import MyVKData
-session = vk.AuthSession(app_id=MyVKData.APP_ID, user_login=MyVKData.LOGIN, user_password="Galutinaistar98")
+session = vk.AuthSession(app_id=MyVKData.APP_ID, user_login=MyVKData.LOGIN, user_password="")
 vkapi = vk.API(session)
 offs = 0
 all_interests = dict()
