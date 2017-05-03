@@ -1,3 +1,6 @@
+"""
+    created by Sergei Troshin 3 May 2017.
+"""
 import requests
 from my_data import MyVKData
 #  how was before 

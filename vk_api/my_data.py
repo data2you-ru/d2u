@@ -1,3 +1,6 @@
+"""
+    created by Sergei Troshin 3 May 2017.
+"""
 class MyVKData:
     # my user id for vk.com
     MY_USER_ID = '40819504'
