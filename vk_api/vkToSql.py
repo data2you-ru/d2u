@@ -68,19 +68,12 @@ class Vkinterests:
                         person_info['last_name'] = "'"+usr['last_name']+"'"
                     if ('interests' in usr):
                         person_info['interests'] = "'" + usr['interests'].split(',')[0] + "'"
-                        # for inter in usr['interests'].split(','):
-                        #    inter = inter.strip()
-                        #    if inter in all_interests:
-                        #       all_interests[inter] += 1
-                        #   else:
-                        #       all_interests[inter] = 1
                     self.persons.append(VKPerson(person_info))
                 time.sleep(0.3)
             #  fix it
             except Exception('ReadTimeout'):
                 time.sleep(1)
                 print("ReadTimeOut")
-        # self.popular_interests = all_interests
         print("{0} users successfully downloaded".format(len(all_interests)))
         return
 
