@@ -6,7 +6,7 @@ These part of data2you projects implemets some scripts like sql_connector, vkToS
 
 To start with clone our rep
 ```
-git clone https://github.com/data2you-ru/d2u/tree/master/vk_api
+git clone https://github.com/data2you-ru/d2u
 ```
 
 ### Prerequisites
