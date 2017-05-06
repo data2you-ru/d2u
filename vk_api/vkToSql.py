@@ -10,8 +10,8 @@ from vkTableMaker import VkTableMaker
 
 class VKPerson:
     # fix it - make dict
-    def __init__(self, input_dict, russian_keys=None):
-        """
+    def __init__(self, input_dict):
+        """VKPerson
         class that contain all data about vk user as a structure
         :param vk_id:
         :param first_name:
@@ -19,7 +19,6 @@ class VKPerson:
         :param interests:
         """
         self.kvp = input_dict
-        self.russian_keys=russian_keys
         def keys(self):
             return self.kvp.keys()
         def __getitem__(self, k):
@@ -39,7 +38,12 @@ class Vkinterests:
         #  array that collect all persons gotten from vk-api
         self.persons = []
 
-    def get_data(self):
+    def process_data(self, local, append):
+        """
+        :param local:  if local - create connection with local sql mashine
+        :param append: if append - just uppend rows in existing table
+        this function also create connection to mysql server
+        """
         # connect to api using config file - need directory with password!!
         # I used my password and login from VK
         session = vk.AuthSession(app_id=MyVKData.APP_ID, user_login=MyVKData.LOGIN, user_password=MyVKData.PASSWORD())
@@ -53,7 +57,14 @@ class Vkinterests:
         # information only about small group of people
         # but using the 'offset' field you can make shifts
         # and collect new persons per querry
-        for i in tqdm(range(10)):
+        table = VkTableMaker(
+            title='Таблица вк по интересам',
+            table_name='VK_interests',
+            params='Id INT PRIMARY KEY AUTO_INCREMENT, vk_id INT, first_name VARCHAR(25), last_name VARCHAR(25), interests VARCHAR(25)',
+            russian_keys=['first_name', 'last_name', 'main_interest'],
+            local=local
+        )
+        for i in tqdm(range(100)):
             try:
                 usrs = vkapi.users.search(interests=self.main_interest, extended=1, fields='interests', offset=offs)
                 # return : [<count> , <dicts>]
@@ -68,25 +79,33 @@ class Vkinterests:
                         person_info['last_name'] = "'"+usr['last_name']+"'"
                     if ('interests' in usr):
                         person_info['interests'] = "'" + usr['interests'].split(',')[0] + "'"
+                        # for inter in usr['interests'].split(','):
+                        #    inter = inter.strip()
+                        #    if inter in all_interests:
+                        #       all_interests[inter] += 1
+                        #   else:
+                        #       all_interests[inter] = 1
                     self.persons.append(VKPerson(person_info))
                 time.sleep(0.3)
             #  fix it
             except Exception('ReadTimeout'):
                 time.sleep(1)
                 print("ReadTimeOut")
-        print("{0} users successfully downloaded".format(len(all_interests)))
+            if i == 0:
+                self.add_all_data_to_sql(table, local, append)
+            else:
+                self.add_all_data_to_sql(table, local, True, False)
+            #  free resources
+            del self.persons
+            self.persons = []
+        # self.popular_interests = all_interests
+        print("\nall users successfully downloaded and wait u on the server\n".format(len(all_interests)))
         return
 
-    def add_all_data_to_sql(self, local, append):
-        table = VkTableMaker(
-            title='Таблица вк по интересам',
-            table_name='VK_interests',
-            params='Id INT PRIMARY KEY AUTO_INCREMENT, vk_id INT, first_name VARCHAR(25), last_name VARCHAR(25), interests VARCHAR(25)',
-            local=local
-        )
+    def add_all_data_to_sql(self, table, local, append, ask_permission=True):
         if (not append):
             table.rewrite_table_if_exist()
-        if table.ask_yes("Do you want to add {0} row in table {1}? ".format(len(self.persons), table.table_name)):
+        if not ask_permission or table.ask_yes("\nDo you want to add rows in table {1}? ".format(len(self.persons), table.table_name)):
             table.add_rows(self.persons)
         else:
             return
@@ -96,8 +115,7 @@ class Vkinterests:
 
 def main():
     vkint = Vkinterests()
-    vkint.get_data()
-    vkint.add_all_data_to_sql(local=True, append=False)
+    vkint.process_data(local=True, append=False)
 main()
 
 

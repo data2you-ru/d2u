@@ -9,7 +9,7 @@ from sql_connector import SQLConnector
 
 class VkTableMaker:
     def __init__(self, title='Table with famous writers (example)', table_name='Writers',
-                 params='Id INT PRIMARY KEY AUTO_INCREMENT, Name VARCHAR(25)', local=True, data=None):
+                 params='Id INT PRIMARY KEY AUTO_INCREMENT, Name VARCHAR(25)', russian_keys=None, local=True, data=None):
         """
         title: what this table about
         table_name: what there is actual name of a table in database
@@ -24,6 +24,7 @@ class VkTableMaker:
         self.params = params
         self.local = local
         self.data = None
+        self.russian_keys=russian_keys
 
     def ask_yes(self, s):
         """
@@ -42,17 +43,12 @@ class VkTableMaker:
         need to use it after each table creation where exists russian text or other non'ascii symbols.
         :return: -
         """
-        if not self.local:
+        if not self.local and self.russian_keys != None:
             cur = self._get_cursor()
-            cur.execute(
-                "ALTER TABLE {0} MODIFY COLUMN {1} VARCHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL".format(
-                    self.table_name, 'first_name'))
-            cur.execute(
-                "ALTER TABLE {0} MODIFY COLUMN {1} VARCHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL".format(
-                    self.table_name, 'last_name'))
-            cur.execute(
-                "ALTER TABLE {0} MODIFY COLUMN {1} VARCHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL".format(
-                    self.table_name, 'main_interest'))
+            for key_name in self.russian_keys:
+                cur.execute(
+                    "ALTER TABLE {0} MODIFY COLUMN {1} VARCHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL".format(
+                        self.table_name, key_name))
 
     def rewrite_table_if_exist(self):
         """
@@ -85,7 +81,7 @@ class VkTableMaker:
                 ALL_VALUES = ','.join([person.kvp[key_] for key_ in person.kvp.keys()])
                 querry = "INSERT INTO " + self.table_name + " (" + ALL_PARAMS + ") VALUES("  + ALL_VALUES + ')'
                 cur.execute(querry)
-            except IndexError:
+            except:
                 print('empty string')
 
     def SELECT_ALL(self):
