@@ -16,7 +16,9 @@ class MyVKData:
     @staticmethod
     def PASSWORD():
         print "password: "
-        return raw_input().strip()
+        # return raw_input().strip()
+        f = open('/Users/istar/Documents/PASSWORDS/vk_pass.txt').read().strip()
+        return f
 
 
 
